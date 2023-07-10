@@ -1,24 +1,17 @@
 import React, { useState } from 'react';
-import { Button, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { FlatList, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { styles } from './styles';
 import { StatusBar } from 'expo-status-bar';
-import { useNavigation } from '@react-navigation/native';
+import { Participant } from '../../components/Participant';
 
 export interface ListaData {
     id: string;
     nomeParticipante: string;
 }
 
-interface ParamProps {
-    lista: ListaData[],
-    setLista: React.Dispatch<React.SetStateAction<ListaData[]>>;
-}
-
 export const Home = () => {
     const [lista, setLista] = useState<ListaData[]>([]);
     const [participante, setParticipante] = useState('');
-
-    const navigation = useNavigation();
 
     const handleParticipantAdd = () => {
         setLista((prevItems) => [
@@ -28,13 +21,16 @@ export const Home = () => {
         setParticipante('');
     };
 
-    const handleNavigate = () => {
-        const params: ParamProps = {
-            lista: lista,
-            setLista: setLista
-        };
-        navigation.navigate('ParticipantPage', params);
-    };
+    const handleRemoveParticipant = (itemId: string) => {
+        setLista((prevItems) => prevItems.filter(item => item.id !== itemId))
+      };
+
+    const renderItem = ({ item }: { item: ListaData }) => {
+        return (
+          <Participant item={item} onRemove={handleRemoveParticipant} />
+        );
+      };
+
 
     return (
         <View style={styles.container}>
@@ -55,9 +51,15 @@ export const Home = () => {
                 </TouchableOpacity>
             </View>
 
-            <View style={styles.buttonWrapper}>
-                <Button title="Navigate" onPress={handleNavigate} color="#31CF67" />
-            </View>
+            <FlatList
+                data={lista}
+                keyExtractor={item => item.id}
+                renderItem={renderItem}
+                ListEmptyComponent={() =>
+                    <Text style={{ color: '#fff', padding: 20, fontSize: 20 }}>Ninguem chegou ao evento ainda!</Text>
+                }
+            />
+
             <StatusBar style="light" />
         </View>
     );
