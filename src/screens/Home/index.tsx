@@ -1,31 +1,39 @@
 import React, { useState } from 'react';
-import { FlatList, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Button, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { styles } from './styles';
 import { StatusBar } from 'expo-status-bar';
-import { Participant } from '../../components/Participant';
+import { useNavigation } from '@react-navigation/native';
 
-interface ListaData {
+export interface ListaData {
     id: string;
     nomeParticipante: string;
+}
+
+interface ParamProps {
+    lista: ListaData[],
+    setLista: React.Dispatch<React.SetStateAction<ListaData[]>>;
 }
 
 export const Home = () => {
     const [lista, setLista] = useState<ListaData[]>([]);
     const [participante, setParticipante] = useState('');
 
+    const navigation = useNavigation();
+
     const handleParticipantAdd = () => {
-        setLista((prevItems) => [...prevItems, { id: Date.now().toString(), nomeParticipante: participante }]);
+        setLista((prevItems) => [
+            ...prevItems,
+            { id: Date.now().toString(), nomeParticipante: participante }
+        ]);
         setParticipante('');
     };
 
-    const handleRemoveParticipant = (itemId: string) => {
-        setLista((prevItems) => prevItems.filter((item) => item.id !== itemId));
-    };
-
-    const renderItem = ({ item }: { item: ListaData }) => {
-        return (
-            <Participant item={item} handleRemoveParticipant={handleRemoveParticipant} />
-        );
+    const handleNavigate = () => {
+        const params: ParamProps = {
+            lista: lista,
+            setLista: setLista
+        };
+        navigation.navigate('ParticipantPage', params);
     };
 
     return (
@@ -39,7 +47,7 @@ export const Home = () => {
                     placeholder="Nome do participante"
                     placeholderTextColor="#6B6B6B"
                     value={participante}
-                    onChangeText={newText => setParticipante(newText)}
+                    onChangeText={(newText) => setParticipante(newText)}
                 />
 
                 <TouchableOpacity onPress={handleParticipantAdd} style={styles.button}>
@@ -47,12 +55,9 @@ export const Home = () => {
                 </TouchableOpacity>
             </View>
 
-            <FlatList
-                data={lista}
-                keyExtractor={item => item.id}
-                renderItem={renderItem}
-            />
-
+            <View style={styles.buttonWrapper}>
+                <Button title="Navigate" onPress={handleNavigate} color="#31CF67" />
+            </View>
             <StatusBar style="light" />
         </View>
     );

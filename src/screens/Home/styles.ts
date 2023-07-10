@@ -43,22 +43,7 @@ export const styles = StyleSheet.create({
         marginTop: 10,
         width: '100%'
     },
-    listaWrapper:{
-        marginTop: 10,
-        borderRadius: 5,
-        borderWidth: 1,
-        borderColor: '#FFF',
-        padding: 10,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between'
-    },
-    lista: {
-        borderColor: '#FFF',
-
-    },
-    listaText: {
-        color: '#FFF',
-        fontSize: 18,
+    buttonWrapper: {
+        marginTop: 20
     }
 })
