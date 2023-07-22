@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FlatList, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { FlatList, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native';
 import { styles } from './styles';
 import { StatusBar } from 'expo-status-bar';
 import { Participant } from '../../components/Participant';
@@ -14,23 +14,41 @@ export const Home = () => {
     const [participante, setParticipante] = useState('');
 
     const handleParticipantAdd = () => {
-        setLista((prevItems) => [
-            ...prevItems,
-            { id: Date.now().toString(), nomeParticipante: participante }
-        ]);
+        const exist = lista.some(participant => participant.nomeParticipante.toLowerCase() === participante.toLowerCase())
+
+        if (exist) {
+            return Alert.alert('Participante existe!', 'Já existe um participante na lista com este nome :(')
+        } else {
+            setLista((prevItems) => [
+                ...prevItems,
+                { id: Date.now().toString(), nomeParticipante: participante }
+            ]);
+        }
         setParticipante('');
     };
 
-    const handleRemoveParticipant = (itemId: string) => {
-        setLista((prevItems) => prevItems.filter(item => item.id !== itemId))
-      };
+    // personalização do Alert para criar botões e condições de acordo com possibilidade escolhida
+    const handleRemoveParticipant = (itemEscolhido: ListaData) => {
+        Alert.alert('Remover Participante', 'Deseja remover este participante?', [
+            {
+                text: 'Sim',
+                onPress: () => {
+                    setLista((prevItems) => prevItems.filter(item => item.id !== itemEscolhido.id))
+                }
+            },
+            {
+                text: 'Não',
+                style: 'cancel',
+                onPress: () => Alert.alert('Não deletado!')
+            }
+        ])
+    };
 
     const renderItem = ({ item }: { item: ListaData }) => {
         return (
-          <Participant item={item} onRemove={handleRemoveParticipant} />
+            <Participant item={item} onRemove={handleRemoveParticipant} />
         );
-      };
-
+    };
 
     return (
         <View style={styles.container}>
@@ -43,7 +61,7 @@ export const Home = () => {
                     placeholder="Nome do participante"
                     placeholderTextColor="#6B6B6B"
                     value={participante}
-                    onChangeText={(newText) => setParticipante(newText)}
+                    onChangeText={setParticipante}
                 />
 
                 <TouchableOpacity onPress={handleParticipantAdd} style={styles.button}>
@@ -56,7 +74,9 @@ export const Home = () => {
                 keyExtractor={item => item.id}
                 renderItem={renderItem}
                 ListEmptyComponent={() =>
-                    <Text style={{ color: '#fff', padding: 20, fontSize: 20 }}>Ninguem chegou ao evento ainda!</Text>
+                    <Text style={{ color: '#fff', padding: 20, fontSize: 16, textAlign: 'center' }}>
+                        Ninguem está cadastrado no evento ainda! Aproveite para cadastrar agora :)
+                    </Text>
                 }
             />
 
